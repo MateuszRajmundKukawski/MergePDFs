@@ -46,8 +46,8 @@ class mainGUI(Frame):
         self.workDir = askdirectory(title='Set Dir', initialdir='D:\\')
         os.chdir(self.workDir)
         self.pdflist = glob.glob(self.workDir+'\\*.pdf')
-    #
-    #
+   
+    
     def mergePdfFile(self):
         if len(self.pdflist)<>0 and self.fname is not None:
             merger = PdfFileMerger()
