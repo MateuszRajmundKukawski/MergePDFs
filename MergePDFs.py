@@ -2,13 +2,11 @@
 from Tkinter import Frame, Tk, Button, StringVar, Label, IntVar, Checkbutton, W,E, SE
 import os, glob
 from tkFileDialog import askdirectory, asksaveasfilename,askopenfilename
-from tkMessageBox import showinfo, showwarning
-from PyPDF2 import PdfFileMerger
+from pdfTool import pdfTool
+from tkMessageBox import showinfo, showerror
 
 
-
-
-class mainGUI(Frame):
+class mainGUI(Frame, pdfTool):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         pad_x = 10
@@ -24,9 +22,8 @@ class mainGUI(Frame):
         self.setWorkDir = Button(self, text='Wybierz folder roboczy', command=self.setDir, width=buttonWidth)
         self.setWorkDir.grid(row=1, column=0, sticky=W, padx=pad_x,pady = pad_y)
 
-        multiFIleButton = Button(self, text ='Wybierz pliki do płączenia', command=self.getMulitiFile, width=buttonWidth)
-        multiFIleButton.grid(row=1,column=1, sticky=W, padx=pad_x,pady = pad_y)
-
+        self.multiFIleButton = Button(self, text ='Wybierz pliki do płączenia', command=self.getMulitiFile, width=buttonWidth)
+        self.multiFIleButton.grid(row=1,column=1, sticky=W, padx=pad_x,pady = pad_y)
 
         self.removeCheckkButton = Checkbutton(self, variable=self.var, text="Usun pliki robocze", width=buttonWidth)
         self.removeCheckkButton.grid(row=2, column=1, sticky=W, padx=pad_x,pady = pad_y)
@@ -34,24 +31,21 @@ class mainGUI(Frame):
         self.saveFileButton = Button(self, text='Plik wyjściowy', command=self.saveFile, width=buttonWidth)
         self.saveFileButton.grid(row=2, column=0, sticky=W, padx=pad_x,pady = pad_y)
 
-
         self.workDirLabel = Label(self, textvariable=self.workDirText)
         self.workDirLabel.grid(row =0, column=0, columnspan=2, sticky=W)
 
-
-        self.runAppButton = Button(self, text='Polacz pliki', command=self.mergePdfFile, width=buttonWidth)
+        self.runAppButton = Button(self, text='Polacz pliki', command=self.mergeCommand, width=buttonWidth)
         self.runAppButton.grid(row=3, column=0, columnspan=2, padx=pad_x,pady = pad_y)
 
-
-        exitButton=Button(self, text='Exit', command=self.close_window, width=15)
-        exitButton.grid(row=4, column=1,sticky = SE, padx=pad_x,pady = pad_y)
+        self.exitButton=Button(self, text='Exit', command=self.close_window, width=15)
+        self.exitButton.grid(row=4, column=1,sticky = SE, padx=pad_x,pady = pad_y)
 
         self.pack(anchor='nw')
 
 
     def getInitDir(self):
         if self.workDir is None:
-            initDir='D:\\'
+            initDir='D:/'
         else:
             initDir=self.workDir
         return initDir
@@ -60,7 +54,7 @@ class mainGUI(Frame):
     def setDir(self):
         initDir= self.getInitDir()
         self.workDir = askdirectory(title='Set Dir', initialdir=initDir)
-        self.pdflist = glob.glob(self.workDir+'\\*.pdf')
+        self.pdflist = glob.glob( os.path.join(self.workDir,'*.pdf'))
         self.workDirText.set("Folder roboczy: "+self.workDir)
 
 
@@ -76,26 +70,19 @@ class mainGUI(Frame):
         self.workDirText.set("Folder roboczy: "+self.workDir)
 
 
-    def mergePdfFile(self):
-        if len(self.pdflist)<>0 and self.fname is not None:
-            merger = PdfFileMerger()
-            try:
-                    for filename in self.pdflist:
-                        with open(filename, 'rb') as myfile:
-                            merger.append(myfile)
-                        if self.var.get()==1:
-                            os.remove(filename)
-                    with open(self.fname, 'wb') as ofile:
-                        merger.write(ofile)
-                    showinfo(title='Ok', message='gotowe')
-            finally:
-                 merger.close()
-        elif len(self.pdflist)==0 and self.fname is None:
-            showwarning(title='ERROR', message='Podaj dane:\n1. Folder roboczy lub plik\n2. Plik wyjściowy')
-        elif len(self.pdflist)==0:
-            showwarning(title='ERROR', message='Wybierz folder roboczy\n lub pliki')
-        elif self.fname is None:
-            showwarning(title='ERROR', message='Podaj plik wyjściowy')
+
+
+    def mergeCommand(self):
+        myInfo= self.mergePdfFile(self.pdflist, self.fname)
+        if myInfo[2] is True:
+            showinfo(title=myInfo[0], message=myInfo[1])
+        else:
+            showerror(title=myInfo[0], message=myInfo[1])
+        self.fname = None
+        self.workDir=None
+        self.pdflist=[]
+
+
 
 
     def close_window(self):
