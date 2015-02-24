@@ -73,7 +73,7 @@ class mainGUI(Frame, pdfTool):
 
 
     def mergeCommand(self):
-        myInfo= self.mergePdfFile(self.pdflist, self.fname)
+        myInfo= self.mergePdfFile(self.pdflist, self.fname, self.var.get())
         if myInfo[2] is True:
             showinfo(title=myInfo[0], message=myInfo[1])
         else:

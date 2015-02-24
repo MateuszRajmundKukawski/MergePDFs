@@ -4,14 +4,14 @@ from PyPDF2 import PdfFileMerger
 
 
 class pdfTool(object):
-    def mergePdfFile(self, pdflist, fname):
-        if len(pdflist)<>0 and fname is not None:
+    def mergePdfFile(self, pdflist, fname, removeVal):
+        if pdflist and fname:
             merger = PdfFileMerger()
             try:
                     for filename in pdflist:
                         with open(filename, 'rb') as myfile:
                             merger.append(myfile)
-                        if self.var.get()==1:
+                        if removeVal==1:
                             os.remove(filename)
                     with open(fname, 'wb') as ofile:
                         merger.write(ofile)
@@ -20,9 +20,9 @@ class pdfTool(object):
                 return ("ERROR", err, False)
             finally:
                  merger.close()
-        elif len(pdflist)==0 and fname is None:
+        elif not pdflist and not fname:
             return ('ERROR', 'Podaj dane:\n1. Folder roboczy lub plik\n2. Plik wyjściowy', False)
-        elif len(pdflist)==0:
+        elif not pdflist:
             return ('ERROR', 'Wybierz folder roboczy\n lub pliki', False)
-        elif fname is None:
+        elif not fname:
             return ('ERROR', 'Podaj plik wyjściowy', False)
