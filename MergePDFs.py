@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from Tkinter import Frame, Tk, Button, StringVar, Label, IntVar, Checkbutton, W,E, SE
 import os, glob
